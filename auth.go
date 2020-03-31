@@ -1,3 +1,6 @@
+// auth handles session/token based authentication on firebase
+// to initialise package an InitAuthVariables struct must be created and the initialized
+// in main
 package auth
 
 import (
@@ -16,19 +19,16 @@ import (
 	"time"
 )
 
-//InitAuthVariables is a holder for the auth initialization variables
-// The only optional variable is RedisOptions, for now...
+// InitAuthVariables is a holder for the auth initialization variables
 type InitAuthVariables struct {
 	CookieName          string            // used to store user sessions
 	FlashCookieName     string            // Used to display flashes to the user
-	DBName              *firestore.Client //Datastore connection
+	DBName              *firestore.Client // Firestore client connection
 	RedirectOnSignIn    string            // Route user is redirected to, on Sign in
 	redirectIfLoggedout string            // Route user is redirected to, on Logout
 	redirectIfNoRight   string            // Route user is redirected to, if they lack permission
 	SessionLife         string            //secondsst, string
-	RedisRawURL         string            // Redis raw url
-	RedisOptions        string            //Redis Options
-	GcloudCtx           context.Context
+	GcloudCtx           context.Context   // gcloud context
 }
 
 var (
@@ -37,7 +37,8 @@ var (
 	err1        error
 )
 
-// InitAuth initializes the package based on environmental cookies being set
+// Init initializes the package based on variables defined in the
+// InitAuthVariables struct
 func (iav InitAuthVariables) Init() {
 	Av = iav
 	sessionLife, err1 = strconv.Atoi(iav.SessionLife) // SessionLife
@@ -46,6 +47,7 @@ func (iav InitAuthVariables) Init() {
 	}
 }
 
+// Session represents a user session stored on the database
 type Session struct {
 	Email      string    //`firestore:"email"`
 	ExpiryDate time.Time //`firestore:"expireDate"`
@@ -54,6 +56,9 @@ type Session struct {
 	Role       string    //`firestore:"roles"`
 }
 
+// CanAccess checks if a user's role is one of those listed
+// in the roles array. This is used in tandem with the authMiddleware
+// function to restrict access to certain handlers
 func (s *Session) CanAccess(roles []string) bool {
 	for _, x := range roles {
 		if s.Role == x {
@@ -74,6 +79,9 @@ type User struct {
 	Approved  bool   `firestore:"approved"`
 }
 
+// GetSessionUser uses the GetSessionDetails function to
+// ...get the session details, and parses the returned session
+// to a User struct
 func (u *User) GetSessionUser(s string) {
 	m, err := GetSessionDetails(s)
 	if err != nil {
@@ -85,6 +93,9 @@ func (u *User) GetSessionUser(s string) {
 	u.Email = m.Email
 }
 
+// SignIn confirms that the entered User credentials (email and password)
+// match what is in the Firestore, creates a session for the user on the server,
+// and returns a cookie containing the session token
 func (u User) SignIn() (*http.Cookie, error) {
 	pw := u.Password
 
@@ -115,16 +126,6 @@ func (u User) SignIn() (*http.Cookie, error) {
 
 	return c, nil
 }
-
-//func (u *User) convertRoletoInterface() []interface{} {
-//
-//	s := make([]interface{}, len(u.Roles))
-//	for i, v := range u.Roles {
-//		s[i] = strconv.Itoa(v)
-//	}
-//
-//	return s
-//}
 
 //func (u *User) assignUserRoles() error {
 //
@@ -351,7 +352,7 @@ func AuthMiddleware(next func(w http.ResponseWriter, r *http.Request, userToken 
 			// determine User role
 			s, err := GetSessionDetails(sessionToken)
 			if err != nil {
-				fmt.Println("error if any:", err) //debug
+				fmt.Println("error if any:", err)
 				http.Redirect(w, r, "/", http.StatusForbidden)
 				return
 			}
@@ -441,6 +442,9 @@ func RandomString(len int) string {
 	return string(bytes)
 }
 
+// GetSessionDetails checks the database to see if
+// there is a valid session with the provided token (s)
+// and returns the session if so
 func GetSessionDetails(sT string) (Session, error) {
 
 	s, err := Av.DBName.Collection("sessions").Doc(sT).Get(Av.GcloudCtx)
