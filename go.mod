@@ -1,4 +1,4 @@
-module auth
+module github.com/lord-ofada/auth
 
 go 1.13
 
