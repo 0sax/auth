@@ -73,6 +73,7 @@ func KillSession(sessionToken string) error {
 
 // randomInt generates a random integer between min and max
 func randomInt(min, max int) int {
+	rand.Seed(time.Now().UnixNano())
 	return min + rand.Intn(max-min)
 }
 

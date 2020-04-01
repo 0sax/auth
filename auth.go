@@ -1,6 +1,6 @@
 // auth handles session/token based authentication on firebase DataStore
 // to initialise package an InitAuthVariables struct must be created and the initialized
-// in main
+// in main.
 // Required Collections
 // 1. "users" stores user data.
 //		Required Fields:
@@ -14,6 +14,7 @@
 //				with an expiryDate before time.Now() or use the
 //				DeleteDeadSessions() function
 //			*"role": the session user's role
+// future encode session cookie strings
 package auth
 
 import (
@@ -48,6 +49,7 @@ type InitAuthVariables struct {
 	redirectIfNoRight string            // *Required* Route user is redirected to, if they lack permission
 	SessionLife       int               // *Required* How long a session should live on the server (seconds)
 	GCContext         context.Context   // *Required* GCloud context
+	CookieEncoding    string            //Encoding Key //
 }
 
 // Init initializes the package based on variables defined in the
