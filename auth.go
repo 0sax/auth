@@ -69,7 +69,7 @@ func (iav *InitAuthVariables) Init() error {
 	}
 
 	if err != "" {
-		return &authError{
+		return &AuthError{
 			msg:     err,
 			errType: ErrInitVars,
 		}
@@ -79,15 +79,15 @@ func (iav *InitAuthVariables) Init() error {
 	return nil
 }
 
-// authError handles errors for this package
-type authError struct {
+// AuthError handles errors for this package
+type AuthError struct {
 	msg      string
 	errType  int
 	ancestor error
 }
 
 // Error implements the error interface
-func (sE *authError) Error() string {
+func (sE *AuthError) Error() string {
 	return fmt.Sprintf(sE.msg)
 }
 
