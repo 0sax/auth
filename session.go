@@ -48,9 +48,9 @@ func CreateSession(user *User, ckName string, life int) (*http.Cookie, error) {
 		})
 
 	if err != nil {
-		return nil, &AuthError{
-			msg:     "error creating session: " + err.Error(),
-			errType: ErrNoSessionCreated,
+		return nil, &Error{
+			Msg:     "error creating session: " + err.Error(),
+			ErrType: ErrNoSessionCreated,
 		}
 	}
 
@@ -102,10 +102,10 @@ func GetSession(sT string) (*Session, error) {
 	s, err := av.DBName.Collection("sessions").Doc(sT).Get(av.GCContext)
 	if err != nil {
 		if status.Code(err) == codes.NotFound { // if session doesn't exist
-			return nil, &AuthError{
-				msg:      "session doesn't exist",
-				errType:  ErrNoSession,
-				ancestor: err,
+			return nil, &Error{
+				Msg:      "session doesn't exist",
+				ErrType:  ErrNoSession,
+				Ancestor: err,
 			}
 		} else { // if any other kind of error is returned
 			return nil, err

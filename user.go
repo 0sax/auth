@@ -24,7 +24,7 @@ type User struct {
 func (u *User) Create() error {
 
 	_, err := u.getUserSnapshot()
-	if err != nil && err.(*AuthError).errType != ErrNoUser {
+	if err != nil && err.(*Error).ErrType != ErrNoUser {
 		return errors.New("user already exists")
 	}
 
@@ -49,24 +49,24 @@ func (u *User) Create() error {
 //getUserSnapshot pulls up the firestore.DocumentSnapshot for User u
 func (u *User) getUserSnapshot() (*firestore.DocumentSnapshot, error) {
 	if u.Email == "" {
-		return nil, &AuthError{msg: "please provide an email address",
-			errType: ErrNoEmail}
+		return nil, &Error{Msg: "please provide an email address",
+			ErrType: ErrNoEmail}
 	}
 
 	usr, err := av.DBName.Collection("users").Where("email", "==", u.Email).
 		Documents(av.GCContext).GetAll()
 	if err != nil {
-		return nil, &AuthError{
-			msg:     "User " + u.Email + "does not exist",
-			errType: ErrNoUser,
+		return nil, &Error{
+			Msg:     "User " + u.Email + "does not exist",
+			ErrType: ErrNoUser,
 		}
 	}
 
 	if len(usr) > 1 {
-		return nil, &AuthError{
-			msg: "there are " + strconv.Itoa(len(usr)) +
+		return nil, &Error{
+			Msg: "there are " + strconv.Itoa(len(usr)) +
 				" users with this email address, contact admin",
-			errType: ErrDuplicateUser,
+			ErrType: ErrDuplicateUser,
 		}
 	}
 
@@ -108,12 +108,12 @@ func (u *User) UpdateFromSession(s string) error {
 // and returns a cookie containing the session token
 func (u *User) SignIn() (*http.Cookie, error) {
 	if u.Email == "" {
-		return nil, &AuthError{msg: "please provide an email address",
-			errType: ErrNoEmail}
+		return nil, &Error{Msg: "please provide an email address",
+			ErrType: ErrNoEmail}
 	}
 	if u.Password == "" {
-		return nil, &AuthError{msg: "please provide an email address",
-			errType: ErrNoPassword}
+		return nil, &Error{Msg: "please provide an email address",
+			ErrType: ErrNoPassword}
 	}
 	pw := u.Password
 
@@ -125,27 +125,27 @@ func (u *User) SignIn() (*http.Cookie, error) {
 
 	err = usr.DataTo(&u)
 	if err != nil {
-		return nil, &AuthError{
-			msg:      "error parsing user details to user struct: " + err.Error(),
-			errType:  ErrParseError,
-			ancestor: err,
+		return nil, &Error{
+			Msg:      "error parsing user details to user struct: " + err.Error(),
+			ErrType:  ErrParseError,
+			Ancestor: err,
 		}
 	}
 
 	if u.Approved != true {
-		return nil, &AuthError{
-			msg:     "user account not yet approved",
-			errType: ErrUserNotApproved,
+		return nil, &Error{
+			Msg:     "user account not yet approved",
+			ErrType: ErrUserNotApproved,
 		}
 	}
 
 	//compare password
 	err = bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(pw))
 	if err != nil {
-		return nil, &AuthError{
-			msg:      "Wrong Password",
-			errType:  ErrWrongPassword,
-			ancestor: err,
+		return nil, &Error{
+			Msg:      "Wrong Password",
+			ErrType:  ErrWrongPassword,
+			Ancestor: err,
 		}
 	}
 
@@ -153,10 +153,10 @@ func (u *User) SignIn() (*http.Cookie, error) {
 	c, err := CreateSession(u, av.CookieName, av.SessionLife)
 	if err != nil {
 		fmt.Println(err)
-		return nil, &AuthError{
-			msg:      "login error, contact admin",
-			errType:  ErrNoSessionCreated,
-			ancestor: err,
+		return nil, &Error{
+			Msg:      "login error, contact admin",
+			ErrType:  ErrNoSessionCreated,
+			Ancestor: err,
 		}
 	}
 

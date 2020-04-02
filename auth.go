@@ -69,9 +69,9 @@ func (iav *InitAuthVariables) Init() error {
 	}
 
 	if err != "" {
-		return &AuthError{
-			msg:     err,
-			errType: ErrInitVars,
+		return &Error{
+			Msg:     err,
+			ErrType: ErrInitVars,
 		}
 	}
 
@@ -79,16 +79,16 @@ func (iav *InitAuthVariables) Init() error {
 	return nil
 }
 
-// AuthError handles errors for this package
-type AuthError struct {
-	msg      string
-	errType  int
-	ancestor error
+// Error handles errors for this package
+type Error struct {
+	Msg      string
+	ErrType  int
+	Ancestor error
 }
 
 // Error implements the error interface
-func (sE *AuthError) Error() string {
-	return fmt.Sprintf(sE.msg)
+func (sE Error) Error() string {
+	return fmt.Sprintf(sE.Msg)
 }
 
 // AuthMiddleware keeps unauthorized users from accessing the provided handler
