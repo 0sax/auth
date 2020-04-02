@@ -6,6 +6,7 @@ import (
 	"google.golang.org/grpc/status"
 	"math/rand"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -71,19 +72,23 @@ func KillSession(sessionToken string) error {
 	return nil
 }
 
-// randomInt generates a random integer between min and max
-func randomInt(min, max int) int {
-	rand.Seed(time.Now().UnixNano())
-	return min + rand.Intn(max-min)
-}
-
 // randomString generates a random string of A-Z chars with len = l
-func randomString(len int) string {
-	bytes := make([]byte, len)
-	for i := 0; i < len; i++ {
-		bytes[i] = byte(randomInt(65, 90))
+func randomString(l int) string {
+	rand.Seed(time.Now().UnixNano())
+
+	time.Sleep(time.Nanosecond)
+
+	chars := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+		"abcdefghijklmnopqrstuvwxyz" +
+		"0123456789")
+	length := l
+	var b strings.Builder
+	for i := 0; i < length; i++ {
+		b.WriteRune(chars[rand.Intn(len(chars))])
 	}
-	return string(bytes)
+
+	return b.String()
+
 }
 
 // GetSession checks the database to see if
