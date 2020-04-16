@@ -12,11 +12,12 @@ import (
 
 // Session represents a user session stored on the database
 type Session struct {
-	Email      string    //`firestore:"email"`
-	ExpiryDate time.Time //`firestore:"expiryDate"`
-	FirstName  string    //`firestore:"firstName"`
-	LastName   string    //`firestore:"lastName"`
-	Role       string    //`firestore:"roles"`
+	Email      string      //`firestore:"email"`
+	ExpiryDate time.Time   //`firestore:"expiryDate"`
+	FirstName  string      //`firestore:"firstName"`
+	LastName   string      //`firestore:"lastName"`
+	Role       string      //`firestore:"roles"`
+	Data       interface{} `firestore:"data,omitempty"` //optional field for app specific data
 }
 
 // CanAccess checks if a user's role is one of those listed
@@ -45,6 +46,7 @@ func CreateSession(user *User, ckName string, life int) (*http.Cookie, error) {
 			"lastName":   user.LastName,
 			"role":       user.Role,
 			"expiryDate": expiryDate,
+			"data":       user.Data,
 		})
 
 	if err != nil {

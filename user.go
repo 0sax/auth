@@ -11,13 +11,14 @@ import (
 
 // User is a holder struct for carrying user details to and from various functions as needed
 type User struct {
-	FirstName string `firestore:"firstName,omitempty"`
-	LastName  string `firestore:"lastName,omitempty"`
-	Email     string `firestore:"email,omitempty"`
-	Password  string `firestore:"password,omitempty"`
-	UserID    int    `firestore:"userID,omitempty"`
-	Role      string `firestore:"role,omitempty"`
-	Approved  bool   `firestore:"approved,omitempty"`
+	FirstName string      `firestore:"firstName,omitempty"`
+	LastName  string      `firestore:"lastName,omitempty"`
+	Email     string      `firestore:"email,omitempty"`
+	Password  string      `firestore:"password,omitempty"`
+	UserID    int         `firestore:"userID,omitempty"`
+	Role      string      `firestore:"role,omitempty"`
+	Approved  bool        `firestore:"approved,omitempty"`
+	Data      interface{} `firestore:"data,omitempty"` //optional field for app specific data
 }
 
 // Create creates a new user and logs to the database
@@ -100,6 +101,7 @@ func (u *User) UpdateFromSession(s string) error {
 	u.LastName = m.LastName
 	u.Email = m.Email
 	u.Role = m.Role
+	u.Data = m.Data
 	return nil
 }
 
