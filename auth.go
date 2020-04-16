@@ -1,20 +1,24 @@
 // auth handles session/token based authentication on firebase DataStore
 // to initialise package an InitAuthVariables struct must be created and the initialized
 // in main.
-// Required Collections
-// 1. "users" stores user data.
-//		Required Fields:
-//			*"email": must be unique //future: accommodate non-uniqueness
-//			*"password": contains MD5 hash of the password
-// 2. "sessions" stores session data.
-//		Required Fields:
-//			*"email"
-//			*"expiryDate": when the session is no longer considered valid
-//				you can run a cron to sweep through and delete sessions
-//				with an expiryDate before time.Now() or use the
-//				DeleteDeadSessions() function
-//			*"role": the session user's role
-// future encode session cookie strings
+//
+// Usage:
+//	Package must variables must be initialized before main.go runs
+//
+// 	Required Collections
+//	 1. "users" stores user data.
+//			Required Fields:
+//				*"email": must be unique
+//				*"password": contains MD5 hash of the password
+//	 2. "sessions" stores session data.
+//			Required Fields:
+//				*"email"
+//				*"expiryDate": when the session is no longer considered valid
+//					you can run a cron to sweep through and delete sessions
+//					with an expiryDate before time.Now() or use the
+//					DeleteDeadSessions() function
+//				*"role": the session user's role
+
 package auth
 
 import (

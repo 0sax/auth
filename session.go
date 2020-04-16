@@ -56,9 +56,11 @@ func CreateSession(user *User, ckName string, life int) (*http.Cookie, error) {
 
 	// Set Cookie
 	return &http.Cookie{
-		Name:    ckName,
-		Value:   sessionToken,
-		Expires: expiryDate,
+		Name:     ckName,
+		Value:    sessionToken,
+		Expires:  expiryDate,
+		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
 	}, nil
 }
 
