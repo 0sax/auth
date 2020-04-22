@@ -127,7 +127,9 @@ func (u *User) SignIn() (*http.Cookie, error) {
 		return nil, err
 	}
 
-	err = usr.DataTo(&u)
+	var u2 *User
+
+	err = usr.DataTo(&u2)
 	if err != nil {
 		return nil, &Error{
 			Msg:      "error parsing user details to user struct: " + err.Error(),
@@ -144,7 +146,7 @@ func (u *User) SignIn() (*http.Cookie, error) {
 	}
 
 	//compare password
-	err = bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(pw))
+	err = bcrypt.CompareHashAndPassword([]byte(u2.Password), []byte(pw))
 	if err != nil {
 		return nil, &Error{
 			Msg:      "Wrong Password",
@@ -153,8 +155,11 @@ func (u *User) SignIn() (*http.Cookie, error) {
 		}
 	}
 
+	// Add IP Address to u2
+	u2.IPAddr = u.IPAddr
+
 	// create session
-	c, err := CreateSession(u, av.CookieName, av.SessionLife)
+	c, err := CreateSession(u2, av.CookieName, av.SessionLife)
 	if err != nil {
 		fmt.Println(err)
 		return nil, &Error{
