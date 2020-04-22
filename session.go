@@ -18,6 +18,7 @@ type Session struct {
 	LastName   string      //`firestore:"lastName"`
 	Role       string      //`firestore:"roles"`
 	Data       interface{} `firestore:"data,omitempty"` //optional field for app specific data
+	IPAddr     string
 }
 
 // CanAccess checks if a user's role is one of those listed
@@ -47,6 +48,7 @@ func CreateSession(user *User, ckName string, life int) (*http.Cookie, error) {
 			"role":       user.Role,
 			"expiryDate": expiryDate,
 			"data":       user.Data,
+			"ip":         user.IPAddr,
 		})
 
 	if err != nil {

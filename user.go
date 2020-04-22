@@ -19,6 +19,7 @@ type User struct {
 	Role      string      `firestore:"role,omitempty"`
 	Approved  bool        `firestore:"approved,omitempty"`
 	Data      interface{} `firestore:"data,omitempty"` //optional field for app specific data
+	IPAddr    string
 }
 
 // Create creates a new user and logs to the database
@@ -102,6 +103,7 @@ func (u *User) UpdateFromSession(s string) error {
 	u.Email = m.Email
 	u.Role = m.Role
 	u.Data = m.Data
+	u.IPAddr = m.IPAddr
 	return nil
 }
 
