@@ -169,7 +169,5 @@ func (u *User) SignIn() (*http.Cookie, error) {
 		}
 	}
 
-	u.Data = u2.Data
-
 	return c, nil
 }
